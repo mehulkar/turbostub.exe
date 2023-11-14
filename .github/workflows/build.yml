@@ -1,29 +1,13 @@
-name: Test
+name: Build
 on:
   push:
     branches: [main]
-  pull_request:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
-permissions:
-  actions: write
-  contents: read
-  pull-requests: read
 
 jobs:
   build:
     name: Build
     runs-on: windows-latest
     steps:
-      # On Windows, set autocrlf to input so that when the repo is cloned down
-      # the fixtures retain their line endings and don't get updated to CRLF.
-      # We want this because this repo also contains the fixtures for our test cases
-      # and these fixtures have files that need stable file hashes. If we let git update
-      # the line endings on checkout, the file hashes will change.
-      # https://www.git-scm.com/book/en/v2/Customizing-Git-Git-Configuration#_core_autocrlf
       - name: set crlf
         shell: bash
         run: git config --global core.autocrlf input
@@ -38,3 +22,8 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           path: turbo.exe
+      - name: Try With Bash
+        shell: bash
+        run: ./turbo.exe hi yes -- 124
+      - name: Try without Bash
+        run: ./turbo.exe hi yes -- 124
